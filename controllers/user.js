@@ -114,9 +114,45 @@ const listar = (req, res) =>{
     })
 }
 
+const eliminar = (req, res) => {
+
+  let id = req.params.id;
+
+  User.findOneAndDelete({_id: id}).then(() => {
+    return res.status(200).json({
+      status: "succes",
+      message: "eliminado con exito"
+    })
+  }).catch((error) => {
+    return res.status(400).json({
+      status: "error",
+      message: "no se pudo eliminar"
+    })
+  })
+}
+
+const uno = (req, res) => {
+
+  let id = req.params.id;
+
+  User.findOne({_id: id}).then((user) => {
+    return res.status(200).json({
+      status: "succes",
+      user
+    })
+  }).catch((error) => {
+    return res.status(404).json({
+      status: "error",
+      message: "no encontrado"
+    })
+  })
+}
+
 module.exports = {
   prueba,
   crear,
   editar,
-  listar
+  listar,
+  eliminar,
+  uno
 };
