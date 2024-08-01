@@ -23,5 +23,6 @@ router.get("/listar", Controller.listar);
 router.delete("/eliminar/:id", Controller.eliminar);
 router.get("/uno/:id", Controller.uno);
 router.post("/subir/:id", [subidas.single("file0")], Controller.subir);
+router.get("/imagen/:fichero", Controller.imagen);
 
 module.exports = router;

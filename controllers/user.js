@@ -1,6 +1,7 @@
 const validator = require("validator");
 const User = require("../models/User");
 const fs = require("fs");
+const path = require("path");
 
 const prueba = (req, res) => {
   return res.status(200).json({
@@ -192,7 +193,25 @@ const subir = (req, res) => {
       }) 
     }
   }
-};
+}
+
+const imagen = (req, res) => {
+
+  let fichero = req.params.fichero;
+  let ruta = "./images/users/"+fichero;
+
+  fs.stat(ruta, (error, existe) => {
+    if(existe){
+      return res.sendFile(path.resolve(ruta));
+    }else{
+      return res.status(404).json({
+        status: "error",
+        message: "error al mostrar imagen"
+      })
+    }
+  })
+
+}
 
 module.exports = {
   prueba,
@@ -202,4 +221,5 @@ module.exports = {
   eliminar,
   uno,
   subir,
+  imagen
 };
