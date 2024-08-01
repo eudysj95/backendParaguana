@@ -1,5 +1,6 @@
 const validator = require("validator");
 const User = require("../models/User");
+const fs = require("fs");
 
 const prueba = (req, res) => {
   return res.status(200).json({
@@ -83,8 +84,7 @@ const editar = (req, res) => {
     });
   }
 
-  User
-    .findOneAndUpdate({_id: id}, parametros)
+  User.findOneAndUpdate({ _id: id }, parametros)
     .then(() => {
       return res.status(200).json({
         status: "succes",
@@ -99,54 +99,100 @@ const editar = (req, res) => {
     });
 };
 
-const listar = (req, res) =>{
-
-    let consulta = User.find({}).then((users) => {
-        return res.status(200).json({
-            status: "succes",
-            users
-        })
-    }).catch((error) => {
-        return res.status(400).json({
-            status: "error",
-            message: "No se pudo listar"
-        })
+const listar = (req, res) => {
+  let consulta = User.find({})
+    .then((users) => {
+      return res.status(200).json({
+        status: "succes",
+        users,
+      });
     })
-}
+    .catch((error) => {
+      return res.status(400).json({
+        status: "error",
+        message: "No se pudo listar",
+      });
+    });
+};
 
 const eliminar = (req, res) => {
-
   let id = req.params.id;
 
-  User.findOneAndDelete({_id: id}).then(() => {
-    return res.status(200).json({
-      status: "succes",
-      message: "eliminado con exito"
+  User.findOneAndDelete({ _id: id })
+    .then(() => {
+      return res.status(200).json({
+        status: "succes",
+        message: "eliminado con exito",
+      });
     })
-  }).catch((error) => {
-    return res.status(400).json({
-      status: "error",
-      message: "no se pudo eliminar"
-    })
-  })
-}
+    .catch((error) => {
+      return res.status(400).json({
+        status: "error",
+        message: "no se pudo eliminar",
+      });
+    });
+};
 
 const uno = (req, res) => {
-
   let id = req.params.id;
 
-  User.findOne({_id: id}).then((user) => {
-    return res.status(200).json({
-      status: "succes",
-      user
+  User.findOne({ _id: id })
+    .then((user) => {
+      return res.status(200).json({
+        status: "succes",
+        user,
+      });
     })
-  }).catch((error) => {
+    .catch((error) => {
+      return res.status(404).json({
+        status: "error",
+        message: "no encontrado",
+      });
+    });
+};
+
+const subir = (req, res) => {
+  if (!req.file && !req.files) {
     return res.status(404).json({
       status: "error",
-      message: "no encontrado"
-    })
-  })
-}
+      message: "no existe el archivo",
+    });
+  } else {
+    let nombre = req.file.originalname;
+    let nombreSplit = nombre.split(".");
+    let extencion = nombreSplit[1];
+
+    if (
+      extencion != "png" &&
+      extencion != "jpg" &&
+      extencion != "jpeg" &&
+      extencion != "gif"
+    ) {
+      fs.unlink(req.file.path, () => {
+        return res.status(400).json({
+          status: "error",
+          message: "archivo invalido",
+        });
+      });
+    } else {
+
+      let id = req.params.id;
+
+      User.findOneAndUpdate({_id: id}, {imagen: req.file.filename}, {new: true}).then((objeto) => {
+        return res.status(200).json({
+          status: "succes",
+          message: "subir",
+          file: objeto
+        });
+      }).catch((error) => {
+        return res.status(400).json({
+          status: "error",
+          message: "error al subir"
+        })
+      }) 
+    }
+  }
+};
 
 module.exports = {
   prueba,
@@ -154,5 +200,6 @@ module.exports = {
   editar,
   listar,
   eliminar,
-  uno
+  uno,
+  subir,
 };
